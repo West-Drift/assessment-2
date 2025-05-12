@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # acre_assessment
 Young Professional GIS/Remote Sensing Practical  Evaluation 
 
@@ -52,3 +53,6 @@ The project is deployed using **Streamlit** and can be accessed at:
 
 **Documentation**  
 ![Documentation Preview](assets/documentation.png)
+=======
+# assessment-2
+>>>>>>> origin/main
