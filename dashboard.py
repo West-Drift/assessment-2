@@ -3,21 +3,16 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
-import plotly.graph_objs as go
 
 # Set page configuration
 st.set_page_config(page_title="Bangweulu GMA Dashboard", layout="wide")
-
-# Define paths
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ASSET_DIR = os.path.join(BASE_DIR, "assets")
 
 # Tabs for navigation
 tab1, tab2, tab3 = st.tabs(["Interactive Map", "NDVI Charts", "Documentation"])
 
 with tab1:
     st.header("Forage Analysis Map")
-    map_path = os.path.join(ASSET_DIR, "Bangweulu_Interactive_Map.html")
+    map_path = os.path.join("assets", "Bangweulu_Interactive_Map.html")
     with open(map_path, 'r', encoding='utf-8') as f:
         html_map = f.read()
     st.components.v1.html(html_map, height=600, scrolling=True)
@@ -26,7 +21,7 @@ with tab2:
     st.header("NDVI Time Series Charts")
 
     def plot_ndvi_interactive(csv_filename, title):
-        csv_path = os.path.join(ASSET_DIR, csv_filename)
+        csv_path = os.path.join("assets", csv_filename)
         df = pd.read_csv(csv_path)
 
         if 'Date' in df.columns:
@@ -71,15 +66,18 @@ with tab2:
     plot_ndvi_interactive("Bangweulu_VIIRS_NDVI_TimeSeries_MCDA_UAIs.csv", "MCDA NDVI - VIIRS")
 
     # Comparison using Plotly
+    import plotly.graph_objs as go
+
     st.subheader("Comparison: NDVI-only vs MCDA UAIs (MODIS NDVI)")
 
     # Load data
-    modis_uai_df = pd.read_csv(os.path.join(ASSET_DIR, "Bangweulu_MODIS_NDVI_TimeSeries_UAIs.csv"))
-    modis_mcda_df = pd.read_csv(os.path.join(ASSET_DIR, "Bangweulu_MODIS_NDVI_TimeSeries_MCDA_UAIs.csv"))
+    modis_uai_df = pd.read_csv(os.path.join("assets", "Bangweulu_MODIS_NDVI_TimeSeries_UAIs.csv"))
+    modis_mcda_df = pd.read_csv(os.path.join("assets", "Bangweulu_MODIS_NDVI_TimeSeries_MCDA_UAIs.csv"))
 
     modis_uai_df['Date'] = pd.to_datetime(modis_uai_df['Date'], dayfirst=False)
     modis_mcda_df['Date'] = pd.to_datetime(modis_mcda_df['Date'], dayfirst=False)
 
+    # Extract all valid UAI numbers
     uai_ids = sorted(modis_uai_df['UAI'].str.extract(r'(\d+)')[0].dropna().astype(int).unique())
 
     fig = go.Figure()
@@ -90,6 +88,7 @@ with tab2:
         uai_label = f"UAI {uai_num}"
         mcda_label = f"MCDA UAI {uai_num}"
 
+        # NDVI-only line
         df_ndvi = modis_uai_df[modis_uai_df['UAI'] == uai_label]
         if not df_ndvi.empty:
             fig.add_trace(go.Scatter(
@@ -101,6 +100,7 @@ with tab2:
                 hoverinfo='x+y+name'
             ))
 
+        # MCDA line
         df_mcda = modis_mcda_df[modis_mcda_df['UAI'] == mcda_label]
         if not df_mcda.empty:
             fig.add_trace(go.Scatter(
@@ -122,11 +122,13 @@ with tab2:
         legend=dict(font=dict(size=10))
     )
 
-    col1, _ = st.columns([3, 2])
+    col1, _ = st.columns([3, 2])  # 60% layout
     with col1:
         st.plotly_chart(fig, use_container_width=True)
 
     st.caption("[Comparison] NDVI-only vs MCDA time series exported: Bangweulu_NDVI_Comparison_NDVI_vs_MCDA.csv")
+
+
 
 with tab3:
     st.header("Workflow Documentation")
@@ -162,7 +164,7 @@ with tab3:
 
     ### Rationale
     The rationale behind the workflow is to establish a reproducible, automated method for isolating edible vegetation zones 
-    that vary seasonally, allowing risk-based segmentation and comparison between NDVI-only and multi-criteria approaches for defining UAIs. One of the major differences highlighted between the two methods is that MCDA resulted in more compact clusters compared to NDVI-only units.
+    that vary seasonally, allowing risk-based segmentation and comparison between NDVI-only and multi-criteria approaches for defining UAIs. One of the major differences highlighted between the two methods is that MDCA resulted in more compact clusters compared to NDVI only units Segmentation.
 
     ### Challenges
     - Incomplete datasets caused missing or inconclusive outputs  
