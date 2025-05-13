@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/Bangweulu_Interactive_Map.html" }
+  ]
+}
